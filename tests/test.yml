@@ -17,20 +17,32 @@
         size: '5g'
         #state: 'absent'
 
-    - include_role:
-        name: ../linux-storage-role
-      vars:
-        device_name: 'test2'
+    - name: Check test1 results 
+      role_test:
+        device_name: 'test1'
         disks: ['vdb']
-        fs_type: 'ext4'
         lvm_vg: 'foo'
-        mount_point: '/opt/test2'
-        #state: 'absent'
+        mount_point: '/opt/test1'
+        size: '5g'
+        #state: 'absent' 
+      register: test1_results 
 
-    - include_role:
-        name: ../linux-storage-role
-      vars:
-        device_type: 'disk'
-        disks: ['vdc']
-        mount_point: '/opt/test3'
-        #state: 'absent'
+    - debug: var=test1_results      
+
+    # - include_role:
+    #     name: ../linux-storage-role
+    #   vars:
+    #     device_name: 'test2'
+    #     disks: ['vdb']
+    #     fs_type: 'ext4'
+    #     lvm_vg: 'foo'
+    #     mount_point: '/opt/test2'
+    #     #state: 'absent'
+
+    # - include_role:
+    #     name: ../linux-storage-role
+    #   vars:
+    #     device_type: 'disk'
+    #     disks: ['vdc']
+    #     mount_point: '/opt/test3'
+    #     #state: 'absent'
