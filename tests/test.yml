@@ -1,6 +1,7 @@
 ---
 - hosts: localhost
   become: true
+  any_errors_fatal: true
 
   roles:
 #    - { role: ../linux-storage-role, "disks": ["vdb"], mount_point: '/opt/test1', device_name: 'test1', lvm_vg: 'foo', size: '5g'}
@@ -12,10 +13,20 @@
       vars:
         device_name: 'test1'
         disks: ['vdb']
-        lvm_vg: 'foo'
+        lvm_vg: 'rhel_ibm'
         mount_point: '/opt/test1'
-        size: '5g'
-        #state: 'absent'
+        size: '13g'
+        # state: 'absent'
+
+    - name: Check test1 results 
+      role_test:
+        device_name: 'test1'
+        disks: ['vdb']
+        lvm_vg: 'rhel_ibm'
+        mount_point: '/opt/test1'
+        size: '13g'
+        # state: 'absent' 
+      register: test1_results 
 
     - include_role:
         name: ../linux-storage-role
@@ -23,14 +34,43 @@
         device_name: 'test2'
         disks: ['vdb']
         fs_type: 'ext4'
-        lvm_vg: 'foo'
+        lvm_vg: 'rhel_ibm'
+        size: '70%PVS'
         mount_point: '/opt/test2'
-        #state: 'absent'
+        # state: 'absent'
+
+    - name: Check test2 results 
+      role_test:
+        device_name: 'test2'
+        disks: ['vdb']
+        fs_type: 'ext4'
+        lvm_vg: 'rhel_ibm'
+        mount_point: '/opt/test2'
+        size: '70%PVS'
+        # state: 'absent'
+      register: test2_results
 
     - include_role:
         name: ../linux-storage-role
       vars:
         device_type: 'disk'
+        mount_point: '/opt/test3'
+        disks: ['vdc']
+        state: 'absent'
+
+    - name: Check test3 results 
+      role_test:
+        device_type: 'disk'
         disks: ['vdc']
         mount_point: '/opt/test3'
-        #state: 'absent'
+        state: 'absent'
+      register: test3_results
+
+    - debug: 
+        var=test1_results 
+
+    - debug:
+        var=test2_results
+
+    - debug:
+        var=test3_results
