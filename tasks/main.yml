@@ -4,6 +4,28 @@
 #
 # TODO: Set defaults as needed: lvm_vg, device_name, disks
 
+- name: Set find unused disk flag
+  set_fact:
+    find_disks: "{{ False if disks|length else True }}"
+
+#
+# Find unused disks if unspecified in playbook
+#
+- name: Find unused disks when needed
+  find_unused_disk:
+    max_return: 5
+  register: disk_output
+  when: find_disks
+
+- fail:
+    msg: "Was unable to find any available disks"
+  when: find_disks and (disk_output.disks|first) is search("Unable")
+
+- name: Output unused disks
+  debug:
+    var: disk_output.disks
+  when: find_disks
+
 #
 # Resolve specified disks to device node paths.
 #
@@ -12,29 +34,37 @@
     spec: "{{ item }}"
   with_items: "{{ disks }}"
   register: resolved_disks
+  when: not find_disks
 
-- debug: var=resolved_disks
+- name: Print out resolved disks
+  debug:
+    var: resolved_disks
+  when: not find_disks
 
 - set_fact:
     disk_paths: "{{ resolved_disks.results|map(attribute='device')|list }}"
+  when: not find_disks
 
 - name: Show disks
   debug:
     var: disk_paths
+  when: not find_disks
 
 #
 # Set the path for the final device based on device type.
 #
 - set_fact:
-    device_path: "{{ disk_paths[0] }}"
+    device_path: "{{ disk_paths[0] if not find_disks else '/dev/' + disk_output.disks|first }}"
   when: device_type == "disk"
 
-- set_fact:
+- name: Set device path for lvm device
+  set_fact:
     device_path: "/dev/mapper/{{ lvm_vg }}-{{ device_name }}"
   when: device_type == "lvm"
 
-- debug: var=device_path
-
+- name: Print out device path
+  debug:
+    var: device_path
 
 - name: Remove the Specified Storage Volume
   include_tasks: "{{ layer }}-{{ storage_backend }}.yml"
@@ -42,7 +72,6 @@
   loop_control:
     loop_var: layer
   when: state == "absent"
-
 
 - name: Configure the Specified Storage Volume
   include_tasks: "{{ layer }}-{{ storage_backend }}.yml"

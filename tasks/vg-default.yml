@@ -9,7 +9,7 @@
     name: lvm2
     state: present
   when: device_type == "lvm"
-  
+
 - name: Get current PVs
   block:
     - shell: pvs -o name --noheadings --select 'vg_name={{ lvm_vg }}'
@@ -18,10 +18,10 @@
   rescue:
     - debug:
         msg: "Failed to run pvs"
-  when: disks == [] and device_type == "lvm" and lvm_vg in ansible_facts.lvm.vgs
+  when: not disks|length and device_type == "lvm" and lvm_vg in ansible_facts.lvm.vgs
 
 - set_fact:
-    pvs: "{{ disk_paths }}"
+    pvs: "{{ disk_paths if not find_disks else disk_output|first }}"
   when: device_type == "lvm"
 
 - set_fact:

@@ -108,7 +108,7 @@ def run_module():
                 break
 
     if not result['disks']:
-        result['disks'] = "Unable to find unused disk"
+        result['disks'].append("Unable to find unused disk")
     module.exit_json(**result)
 
 
