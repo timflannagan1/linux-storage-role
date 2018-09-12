@@ -6,7 +6,12 @@
   package:
     name: parted
     state: present
-  when: use_partitions and volume.type != 'disk'
+  register: parted_pkg
+  when: "'parted' not in installed_packages and use_partitions and volume.type != 'disk'"
+
+- set_fact:
+    installed_packages: "{{ installed_packages + ['parted'] }}"
+  when: parted_pkg is defined
 
 - name: Create disklabels as needed
   parted:
