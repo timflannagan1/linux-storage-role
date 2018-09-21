@@ -8,12 +8,11 @@
   package:
     name: lvm2
     state: present
-  register: lvm_output
   when: "'lvm2' not in installed_packages and pool.type == 'lvm'"
 
 - set_fact:
     installed_packages: "{{ installed_packages + ['lvm2']  }}"
-  when: lvm_output is defined
+  when: "'lvm2' not in installed_packages"
 
 - block:
     - name: collect list of current pvs

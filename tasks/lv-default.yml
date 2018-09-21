@@ -3,12 +3,11 @@
   package:
     name: lvm2
     state: present
-  register: lvm2_output
   when: "'lvm2' not in installed_packages and volume.type == 'lvm'"
 
 - set_fact:
     installed_packages: "{{ installed_packages + ['lvm2'] }}"
-  when: lvm2_output is defined
+  when: "'lvm2' not in installed_packages"
 
 - name: Make sure LV exists
   lvol:
