@@ -25,18 +25,18 @@
 
 - set_fact:
     installed_packages: "{{ installed_packages + ['xfsprogs'] }}"
-  when: 'xfsprogs' not in installed_packages
+  when: "'xfsprogs' not in installed_packages"
 
 - set_fact:
     installed_packages: "{{ installed_packages + ['e2fsprogs'] }}"
-  when: 'e2fsprogs' not in installed_packages
+  when: "'e2fsprogs' not in installed_packages"
 
 - set_fact:
     installed_packages: "{{ installed_packages + ['util-linux'] }}"
-  when: 'util-linux' not in installed_packages
+  when: "'util-linux' not in installed_packages"
 
 #
-# Do filesystem tasks here 
+# Do filesystem tasks here
 #
 - name: Remove file system as needed
   command: wipefs {{ fs_destroy_options }} {{ device_path }}

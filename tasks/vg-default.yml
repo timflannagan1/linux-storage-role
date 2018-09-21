@@ -12,7 +12,7 @@
 
 - set_fact:
     installed_packages: "{{ installed_packages + ['lvm2'] }}"
-  when: 'lvm2' not in installed_packages
+  when: "'lvm2' not in installed_packages"
 
 - block:
     - name: collect list of current pvs
